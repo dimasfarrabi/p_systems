@@ -76,6 +76,7 @@ services:
       - rabbitmq_nodejs
 volumes: 
   db:
+  rabbitmq.tst:
 networks:
   rabbitmq_nodejs:
     driver: bridge
