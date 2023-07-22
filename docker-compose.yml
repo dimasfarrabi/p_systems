@@ -1,0 +1,81 @@
+version: '3.8'
+
+services:
+  mysqldb:
+    image: mysql:5.7
+    restart: unless-stopped
+    env_file: ./.env
+    environment:
+      - MYSQL_ROOT_PASSWORD=$MYSQLDB_ROOT_PASSWORD
+      - MYSQL_DATABASE=$MYSQLDB_DATABASE
+    ports:
+      - $MYSQLDB_LOCAL_PORT:$MYSQLDB_DOCKER_PORT
+    volumes:
+      - db:/var/lib/mysql
+  rabbitmq:
+    image: "rabbitmq:3-management"
+    ports:
+      - "5673:5672"
+      - "15673:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    volumes:
+      - rabbitmq.tst:/var/lib/rabbitmq
+    networks:
+      - rabbitmq_nodejs
+  app:
+    depends_on:
+      - mysqldb
+    build: ./auth-app/node-js-jwt-auth
+    restart: unless-stopped
+    env_file: ./.env
+    ports:
+      - $NODE_LOCAL_PORT:$NODE_DOCKER_PORT
+    environment:
+      - DB_HOST=mysqldb
+      - DB_USER=$MYSQLDB_USER
+      - DB_PASSWORD=$MYSQLDB_ROOT_PASSWORD
+      - DB_NAME=$MYSQLDB_DATABASE
+      - DB_PORT=$MYSQLDB_DOCKER_PORT
+    stdin_open: true
+    tty: true
+  consumer:
+    depends_on:
+      - mysqldb
+      - rabbitmq
+    build: ./check-in-receiver
+    restart: unless-stopped
+    env_file: ./.env
+    ports:
+      - "6969:8181"
+    environment:
+      - DB_HOST=mysqldb
+      - DB_USER=$MYSQLDB_USER
+      - DB_PASSWORD=$MYSQLDB_ROOT_PASSWORD
+      - DB_NAME=$MYSQLDB_DATABASE
+      - DB_PORT=$MYSQLDB_DOCKER_PORT
+      - AMQP_URL: amqp://guest:guest@rabbitmq:5672
+    stdin_open: true
+    tty: true
+    networks:
+      - rabbitmq_nodejs
+  producer:
+    depends_on:
+      - rabbitmq
+    build: ./check-in-sender
+    restart: unless-stopped
+    env_file: ./.env
+    ports:
+      - "7070:8282"
+    environment:
+      - AMQP_URL: amqp://guest:guest@rabbitmq:5672
+    stdin_open: true
+    tty: true
+    networks:
+      - rabbitmq_nodejs
+volumes: 
+  db:
+networks:
+  rabbitmq_nodejs:
+    driver: bridge
