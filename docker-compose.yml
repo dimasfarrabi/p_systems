@@ -13,12 +13,10 @@ services:
     volumes:
       - db:/var/lib/mysql
   rabbitmq:
-    image: "rabbitmq:3-management"
+    image: "rabbitmq:3.11.9-management-alpine"
     ports:
       - "5673:5672"
       - "15673:15672"
-    volumes:
-      - rabbitmq.tst:/var/lib/rabbitmq
     networks:
       - rabbitmq_nodejs
   app:
@@ -37,6 +35,26 @@ services:
       - DB_PORT=$MYSQLDB_DOCKER_PORT
     stdin_open: true
     tty: true
+  consumer:
+    depends_on:
+      - mysqldb
+      - rabbitmq
+    build: ./check-in-receiver
+    restart: unless-stopped
+    env_file: ./.env
+    ports:
+      - "6969:8181"
+    environment:
+      - DB_HOST=mysqldb
+      - DB_USER=$MYSQLDB_USER
+      - DB_PASSWORD=$MYSQLDB_ROOT_PASSWORD
+      - DB_NAME=$MYSQLDB_DATABASE
+      - DB_PORT=$MYSQLDB_DOCKER_PORT
+      - "AMQP_URL: amqp://guest:guest@rabbitmq:5672"
+    stdin_open: true
+    tty: true
+    networks:
+      - rabbitmq_nodejs
   producer:
     depends_on:
       - rabbitmq
@@ -53,7 +71,6 @@ services:
       - rabbitmq_nodejs
 volumes: 
   db:
-  rabbitmq.tst:
 networks:
   rabbitmq_nodejs:
     driver: bridge
