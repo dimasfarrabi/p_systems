@@ -55,7 +55,7 @@ services:
       - DB_PASSWORD=$MYSQLDB_ROOT_PASSWORD
       - DB_NAME=$MYSQLDB_DATABASE
       - DB_PORT=$MYSQLDB_DOCKER_PORT
-      - AMQP_URL: amqp://guest:guest@rabbitmq:5672
+      AMQP_URL: amqp://guest:guest@rabbitmq:5672
     stdin_open: true
     tty: true
     networks:
@@ -69,7 +69,7 @@ services:
     ports:
       - "7070:8282"
     environment:
-      - AMQP_URL: amqp://guest:guest@rabbitmq:5672
+      AMQP_URL: amqp://guest:guest@rabbitmq:5672
     stdin_open: true
     tty: true
     networks:
