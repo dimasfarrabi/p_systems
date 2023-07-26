@@ -37,7 +37,8 @@ services:
     tty: true
   consumer:
     depends_on:
-      - mysqldb
+      - mysqldb:
+          condition: service_healthy
       - rabbitmq
     build: ./check-in-receiver
     restart: unless-stopped
