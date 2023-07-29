@@ -1,10 +1,10 @@
-const amqp = require("amqplib");
+const amqp = require("amqplib/callback_api");
 const express = require("express");
 const cors = require("cors");
 const bodyParser = require("body-parser");
 const app = express();
-let configure = require("./config/db_configure");
-let mysqli = require('mysql');
+const Consumer = require("./Consumer");
+const consumer = new Consumer();
 
 var corsOptions = {
     origin: "http://localhost:8082"
@@ -22,7 +22,13 @@ async function consumeMessages() {
 
   channel.consume(q.queue, (msg) => {
     const data = JSON.parse(msg.content);
-    var sql = "INSERT INTO checkin_transactions(park_id, vehicle_id, unique_id, is_checkout, createdAt, updatedAt) VALUES ('"+data.location+"',(SELECT id FROM vehicle_types WHERE vehicle = '"+data.type+"' LIMIT 1),'"+data.specialid+"','0','"+data.dateTime+"',NOW())";
+    try{
+      await consumer.consumeToSql(data);
+    }
+    catch(err){
+      return console.log('Bad request');
+    }
+    /*var sql = "INSERT INTO checkin_transactions(park_id, vehicle_id, unique_id, is_checkout, createdAt, updatedAt) VALUES ('"+data.location+"',(SELECT id FROM vehicle_types WHERE vehicle = '"+data.type+"' LIMIT 1),'"+data.specialid+"','0','"+data.dateTime+"',NOW())";
     console.log(sql);
     let connection = mysqli.createConnection(configure);
     connection.query(sql, (error, results) => {
@@ -31,7 +37,7 @@ async function consumeMessages() {
         }
         console.log('Rows affected:', results.affectedRows);
     });
-    connection.end();
+    connection.end();*/
     channel.ack(msg);
   });
 }
