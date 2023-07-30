@@ -1,10 +1,9 @@
-const amqp = require("amqplib/callback_api");
+const amqp = require("amqplib");
 const express = require("express");
 const cors = require("cors");
 const bodyParser = require("body-parser");
 const app = express();
-const Consumer = require("./Consumer");
-const consumer = new Consumer();
+var request = require('request');
 
 var corsOptions = {
     origin: "http://localhost:8082"
@@ -12,6 +11,7 @@ var corsOptions = {
 
 async function consumeMessages() {
   const connection = await amqp.connect("amqp://guest:guest@rabbitmq:5672");
+  
   const channel = await connection.createChannel();
 
   await channel.assertExchange("logExchange", "direct");
@@ -22,22 +22,25 @@ async function consumeMessages() {
 
   channel.consume(q.queue, (msg) => {
     const data = JSON.parse(msg.content);
-    try{
-      await consumer.consumeToSql(data);
-    }
-    catch(err){
-      return console.log('Bad request');
-    }
-    /*var sql = "INSERT INTO checkin_transactions(park_id, vehicle_id, unique_id, is_checkout, createdAt, updatedAt) VALUES ('"+data.location+"',(SELECT id FROM vehicle_types WHERE vehicle = '"+data.type+"' LIMIT 1),'"+data.specialid+"','0','"+data.dateTime+"',NOW())";
-    console.log(sql);
-    let connection = mysqli.createConnection(configure);
-    connection.query(sql, (error, results) => {
-        if (error){
-          console.log(error.message);
+    console.log(data);
+    var options = {
+        uri: 'http://203.175.10.26:6868/api/lot/check_in',
+        method: 'POST',
+        json: {
+          "location": data.location,
+          "type": data.type,
+          "specialid": data.specialid,
+          "dateTime": data.dateTime
         }
-        console.log('Rows affected:', results.affectedRows);
+    };
+    request(options, function (error, response, body) {
+        if (!error && response.statusCode == 200) {
+          console.log(body.id)
+        }
+        else{
+          console.log(error);
+        }
     });
-    connection.end();*/
     channel.ack(msg);
   });
 }

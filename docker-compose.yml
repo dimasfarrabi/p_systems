@@ -37,7 +37,6 @@ services:
     tty: true
   consumer:
     depends_on:
-      - mysqldb
       - rabbitmq
     build: ./check-in-receiver
     restart: unless-stopped
@@ -45,11 +44,6 @@ services:
     ports:
       - "6969:8181"
     environment:
-      - DB_HOST=mysqldb
-      - DB_USER=$MYSQLDB_USER
-      - DB_PASSWORD=$MYSQLDB_ROOT_PASSWORD
-      - DB_NAME=$MYSQLDB_DATABASE
-      - DB_PORT=$MYSQLDB_DOCKER_PORT
       - "AMQP_URL: amqp://guest:guest@rabbitmq:5672"
     stdin_open: true
     tty: true
