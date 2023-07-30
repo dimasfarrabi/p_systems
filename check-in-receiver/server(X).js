@@ -4,9 +4,6 @@ const cors = require("cors");
 const bodyParser = require("body-parser");
 const app = express();
 var request = require('request');
-let configure = require("./config/db_configure");
-let mysqli = require('mysql');
-
 
 var corsOptions = {
     origin: "http://localhost:8082"
@@ -26,16 +23,24 @@ async function consumeMessages() {
   channel.consume(q.queue, (msg) => {
     const data = JSON.parse(msg.content);
     console.log(data);
-    var sql = "INSERT INTO checkin_transactions(park_id, vehicle_id, unique_id, is_checkout, createdAt, updatedAt) VALUES ('"+data.location+"',(SELECT id FROM vehicle_types WHERE vehicle = '"+data.type+"' LIMIT 1),'"+data.specialid+"','0','"+data.dateTime+"',NOW())";
-    console.log(sql);
-    let mysylConn = mysqli.createConnection(configure);
-    mysylConn.query(sql, (error, results) => {
-        if (error){
-          console.log(error.message);
+    var options = {
+        uri: 'http://203.175.10.26:6868/api/lot/check_in',
+        method: 'POST',
+        json: {
+          "location": data.location,
+          "type": data.type,
+          "specialid": data.specialid,
+          "dateTime": data.dateTime
         }
-        console.log('Rows affected:', results.affectedRows);
+    };
+    request(options, function (error, response, body) {
+        if (!error && response.statusCode == 200) {
+          console.log(body.id)
+        }
+        else{
+          console.log(error);
+        }
     });
-    mysylConn.end();
     channel.ack(msg);
   });
 }
