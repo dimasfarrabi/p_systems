@@ -55,7 +55,7 @@ exports.newdetail = (req,res) => {
     connection.end();
 };
 exports.details = (req,res) => { 
-    var sql = "SELECT A.*,B.parking_lot_name,B.longitude,B.latitude,C.vehicle FROM pricing_lots as A LEFT JOIN parking_lots as B ON B.lot_id = A.parking_lot_id LEFT JOIN vehicle_types as C ON C.id = A.vehicle_id WHERE B.is_active = '1'";
+    var sql = "SELECT A.*,B.parking_lot_name,B.longitude,B.latitude,C.vehicle,(SELECT COUNT(D.id) FROM checkin_transactions as D WHERE D.park_id = A.parking_lot_id AND D.vehicle_id = A.vehicle_id AND is_checkout = '0') as current_volume FROM pricing_lots as A LEFT JOIN parking_lots as B ON B.lot_id = A.parking_lot_id LEFT JOIN vehicle_types as C ON C.id = A.vehicle_id WHERE B.is_active = '1'";
     let connection = mysqli.createConnection(configure);
     connection.query(sql, (error, results) => {
         if (error){

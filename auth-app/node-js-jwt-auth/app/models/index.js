@@ -31,6 +31,7 @@ db.lot = require("../models/lot.model.js")(sequelize, Sequelize);
 db.pricing = require("../models/pricing.model.js")(sequelize, Sequelize);
 db.vehicle = require("../models/vehicle.model.js")(sequelize, Sequelize);
 db.checkin = require("../models/checkin.model.js")(sequelize, Sequelize);
+db.invoice = require("../models/invoice.model.js")(sequelize, Sequelize);
 
 db.role.belongsToMany(db.user, {
   through: "user_roles",

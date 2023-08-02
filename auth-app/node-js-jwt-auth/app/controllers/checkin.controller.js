@@ -33,8 +33,8 @@ exports.check_in = (req,res) => {
     connection.end();
 };
 exports.checkout = (req,res) => {
-    var timenow = new Date().toLocaleString({ timeZone: 'Asia/Jakarta' });
-    var sql = "SELECT A.createdAt as checkin_time,NOW() as checkout_time,TIMEDIFF(NOW(),A.createdAt) as total_hours, B.price as price_first_hour,B.addons_price as cummulative, CASE WHEN (HOUR(TIMEDIFF(NOW(),A.createdAt))-1) < 1 THEN B.price ELSE B.price+((HOUR(TIMEDIFF(NOW(),A.createdAt))-1)*B.addons_price) END as final_price FROM checkin_transactions as A LEFT JOIN pricing_lots as B ON B.parking_lot_id = A.park_id AND B.vehicle_id = A.vehicle_id WHERE A.unique_id = '"+req.params.id+"' AND A.is_checkout = '0'";
+    var timenow = new Date().toLocaleString('sv-SE',{ timeZone: 'Asia/Jakarta' })
+    var sql = "SELECT A.createdAt as checkin_time,'"+timenow+"' as checkout_time,TIMEDIFF('"+timenow+"',A.createdAt) as total_hours, B.price as price_first_hour,B.addons_price as cummulative, CASE WHEN (HOUR(TIMEDIFF('"+timenow+"',A.createdAt))-1) < 1 THEN B.price ELSE B.price+((HOUR(TIMEDIFF('"+timenow+"',A.createdAt))-1)*B.addons_price) END as final_price FROM checkin_transactions as A LEFT JOIN pricing_lots as B ON B.parking_lot_id = A.park_id AND B.vehicle_id = A.vehicle_id WHERE A.unique_id = '"+req.params.id+"' AND A.is_checkout = '0'";
     let connection = mysqli.createConnection(configure);
     connection.query(sql, (error, results) => {
         if (error){
