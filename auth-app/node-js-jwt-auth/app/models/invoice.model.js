@@ -10,10 +10,10 @@ module.exports = (sequelize, Sequelize) => {
             type: Sequelize.STRING
         },
         date_in: {
-            type: Sequelize.DATETIME
+            type: Sequelize.DATE
         },
         date_out: {
-            type: Sequelize.DATETIME
+            type: Sequelize.DATE
         },
         final_price: {
             type: Sequelize.FLOAT
