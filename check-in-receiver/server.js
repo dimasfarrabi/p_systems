@@ -26,7 +26,7 @@ async function consumeMessages() {
   channel.consume(q.queue, (msg) => {
     const data = JSON.parse(msg.content);
     console.log(data);
-    var sql = "INSERT INTO checkin_transactions(park_id, vehicle_id, user_id, unique_id, is_checkout, createdAt, updatedAt) VALUES ('"+data.location+"',(SELECT id FROM vehicle_types WHERE vehicle = '"+data.type+"' LIMIT 1),'"+data.user+"','"+data.specialid+"','0','"+data.dateTime+"',NOW()";
+    var sql = "INSERT INTO checkin_transactions(park_id, vehicle_id, user_id, unique_id, is_checkout, createdAt, updatedAt) VALUES ('"+data.location+"',(SELECT id FROM vehicle_types WHERE vehicle = '"+data.type+"' LIMIT 1),'"+data.user+"','"+data.specialid+"','0','"+data.dateTime+"',NOW())";
     console.log(sql);
     let mysylConn = mysqli.createConnection(configure);
     mysylConn.query(sql, (error, results) => {

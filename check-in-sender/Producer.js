@@ -9,7 +9,7 @@ class Producer {
     this.channel = await connection.createChannel();
   }
 
-  async publishMessage(routingKey,parkid,vehicle,uniqueid,time) {
+  async publishMessage(routingKey,parkid,vehicle,userid,uniqueid,time) {
     if (!this.channel) {
       await this.createChannel();
     }
