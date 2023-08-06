@@ -15,6 +15,14 @@ module.exports = (sequelize, Sequelize) => {
         unique_id: {
             type: Sequelize.STRING
         },
+        user_id: {
+            type: Sequelize.STRING
+        },
+        is_confirmed:{
+            type:Sequelize.TINYINT,
+            allowNull:false,
+            defaultValue: "0"
+        },
         is_checkout:{
             type:Sequelize.TINYINT,
             allowNull:false,

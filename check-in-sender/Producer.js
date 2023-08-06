@@ -21,6 +21,7 @@ class Producer {
       logType: routingKey,
       location: parkid,
       type: vehicle,
+      user: userid,
       specialid: uniqueid,
       dateTime: time,
     };

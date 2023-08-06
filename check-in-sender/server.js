@@ -26,7 +26,7 @@ app.post("/sendLog", async (req, res, next) => {
     let UniqueID = (Math.random() + 1).toString(36).substring(5);
     var timenow = new Date().toLocaleString('sv-SE',{ timeZone: 'Asia/Jakarta' })
     try{
-        await producer.publishMessage(req.body.checkType,req.body.parkingId,req.body.vehicle,UniqueID,timenow);
+        await producer.publishMessage(req.body.checkType,req.body.parkingId,req.body.vehicle,req.body.user_id,UniqueID,timenow);
     } catch(err){
         return res.status(500).send({ message: "Request Error" });
     }

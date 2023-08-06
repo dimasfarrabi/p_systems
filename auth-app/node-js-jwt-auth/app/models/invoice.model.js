@@ -9,6 +9,12 @@ module.exports = (sequelize, Sequelize) => {
         unique_id: {
             type: Sequelize.STRING
         },
+        user_id: {
+            type: Sequelize.STRING
+        },
+        officer_id: {
+            type: Sequelize.STRING
+        },
         date_in: {
             type: Sequelize.DATE
         },
