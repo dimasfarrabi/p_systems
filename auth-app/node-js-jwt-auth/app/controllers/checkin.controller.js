@@ -3,6 +3,15 @@ let mysqli = require('mysql');
 
 var jwt = require("jsonwebtoken");
 var bcrypt = require("bcryptjs");
+
+const midtransClient = require('midtrans-client');
+// Create Core API instance
+let core = new midtransClient.CoreApi({
+    isProduction : false,
+    serverKey : 'SB-Mid-server-2bMmJvpP39fj1GL-bpl13rTk',
+    clientKey : 'SB-Mid-client-G0BGoGniZEitMhCv'
+});
+
 exports.checkin = (req,res) => {
     let specialid = (Math.random() + 1).toString(36).substring(5);
     var timenow = new Date().toLocaleString('sv-SE',{ timeZone: 'Asia/Jakarta' });
@@ -44,14 +53,36 @@ exports.checkout = (req,res) => {
         }
         console.log('Rows affected:', results.length );
         if(results.length != '0'){
-            res.status(200).send({ results });
+            
+            let parameter = {
+                "payment_type": "gopay",
+                "transaction_details": {
+                    "gross_amount": results[0].final_price,
+                    "order_id": "test-transaction-"+req.params.id,
+                },
+                "gopay": {
+                    // "enable_callback": true,                // optional
+                    // "callback_url": "someapps://callback"   // optional
+                }
+            };
+            core.charge(parameter)
+            .then((chargeResponse)=>{
+                res.status(200).send({ chargeResponse });
+                var sql2 = "UPDATE checkin_transactions SET is_checkout = '1' WHERE unique_id = '"+req.params.id+"';";
+                var sql3 = "INSERT INTO invoices (unique_id,user_id,officer_id,date_in,date_out,final_price,payment_status,createdAt) SELECT A.unique_id,A.user_id,NULL as officer_id,A.createdAt as date_in,'"+timenow+"' as date_out,CASE WHEN (HOUR(TIMEDIFF('"+timenow+"',A.createdAt))-1) < 1 THEN B.price ELSE B.price+((HOUR(TIMEDIFF('"+timenow+"',A.createdAt))-1)*B.addons_price) END as final_price,'0' as payment_status,'"+timenow+"' as createdAt FROM checkin_transactions as A LEFT JOIN pricing_lots as B ON B.parking_lot_id = A.park_id AND B.vehicle_id = A.vehicle_id WHERE A.unique_id = '"+req.params.id+"';";
+                connection.query(sql2+" "+sql3, (error, results) => { 
+                    if (error){
+                        console.log(error.message);
+                    }
+                });
+                connection.end();
+            });
+            
         }
         else{
-            res.status(500).send({ message: 'Data Not Found' });
+            res.status(200).send({ message: 'Data Not Found' });
         }
     });
-    
-    connection.end();
 };
 
 exports.confirmation = (req,res) => {

@@ -9,4 +9,5 @@ module.exports = function(app) {
     app.get("/api/lot/details", controller.details);
     app.post("/api/lot/edit", controller.edit);
     app.get("/api/lot/remove/:id", controller.remove);
+    app.get("/api/lot/reports/:id", controller.reports);
 };

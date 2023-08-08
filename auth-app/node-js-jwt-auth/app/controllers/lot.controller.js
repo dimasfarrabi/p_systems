@@ -92,3 +92,15 @@ exports.remove = (req,res) => {
     
     connection.end();
 };
+exports.reports = (req,res) => { 
+    var sql = "SELECT A.*,B.park_id,B.vehicle_id,C.parking_lot_name,D.vehicle FROM invoices as A  LEFT JOIN checkin_transactions as B on B.unique_id = A.unique_id LEFT JOIN parking_lots as C on C.lot_id = B.park_id LEFT JOIN vehicle_types as D on D.id = B.vehicle_id WHERE A.user_id = '"+req.params.id+"'";
+    let connection = mysqli.createConnection(configure);
+    connection.query(sql, (error, results) => {
+        if (error){
+            res.status(500).send({ message: error.message });
+        }
+        res.status(200).send({ results });
+    });
+        
+    connection.end();
+};
