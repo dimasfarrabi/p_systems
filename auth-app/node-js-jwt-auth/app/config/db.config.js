@@ -4,6 +4,7 @@ module.exports = {
     PASSWORD: "123456",
     DB: "testdb",
     dialect: "mysql",
+    multipleStatements: true,
     pool: {
         max: 5,
         min: 0,
