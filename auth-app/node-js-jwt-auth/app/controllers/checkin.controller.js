@@ -1,7 +1,7 @@
 let configure = require("../config/db_configure");
 let mysqli = require('mysql');
-// const fetch = require('node-fetch');
-import fetch from "node-fetch";
+const fetch = require('node-fetch');
+// import fetch from "node-fetch";
 const url = 'https://api.midtrans.com/v1/payment-links';
 var ServerKey = "SB-Mid-server-nwqY13Tag_fcR-sec1iGZpRx:";
 var encodeServerKey = btoa(ServerKey);
