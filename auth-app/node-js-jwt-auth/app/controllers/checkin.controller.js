@@ -4,7 +4,8 @@ const fetch = require('node-fetch');
 // import fetch from "node-fetch";
 const url = 'https://api.midtrans.com/v1/payment-links';
 var ServerKey = "SB-Mid-server-nwqY13Tag_fcR-sec1iGZpRx:";
-var encodeServerKey = btoa(ServerKey);
+const encodedStr = Buffer.from(ServerKey).toString('base64');
+var encodeServerKey = encodedStr;
 var jwt = require("jsonwebtoken");
 var bcrypt = require("bcryptjs");
 
