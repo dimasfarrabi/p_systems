@@ -3,7 +3,7 @@ let mysqli = require('mysql');
 const fetch = require('node-fetch');
 // import fetch from "node-fetch";
 const url = 'https://api.midtrans.com/v1/payment-links';
-var ServerKey = "SB-Mid-server-nwqY13Tag_fcR-sec1iGZpRx:";
+var ServerKey = "Mid-server-mkYGfuUhbks8adhEHwfyf0xt:";
 const encodedStr = Buffer.from(ServerKey).toString('base64');
 var encodeServerKey = encodedStr;
 var jwt = require("jsonwebtoken");
@@ -66,8 +66,14 @@ exports.checkout = (req,res) => {
                   authorization: 'Basic '+encodeServerKey
                 },
                 body: JSON.stringify({
-                  transaction_details: {order_id: req.params.id, gross_amount: results[0].final_price},
-                  usage_limit: 2
+                    "transaction_details": {order_id: req.params.id, gross_amount: results[0].final_price},
+                    "customer_required": false,
+                    "usage_limit": 1,
+                    "expiry": {
+                        "start_time": timenow,
+                        "duration": 4,
+                        "unit": "hours"
+                    }
                 })
             };
             fetch(url, options)
@@ -152,4 +158,23 @@ exports.client_confirmation = (req,res) => {
     });
     
     connection.end();
+};
+exports.checkout_confirmation = (req,res) => {
+    const options = {
+        method: 'GET',
+        headers: {
+          accept: 'application/json',
+          'content-type': 'application/json',
+          authorization: 'Basic '+encodeServerKey
+        }
+    };
+    fetch('https://api.midtrans.com/v1/payment-links/'+req.params.id, options)
+    .then(res => res.json())
+    .then(json => {
+        res.status(200).send({ json });
+    })
+    .catch(err => {
+        res.status(500).send({ message: err });
+        console.error('error:' + err)
+    });
 };
