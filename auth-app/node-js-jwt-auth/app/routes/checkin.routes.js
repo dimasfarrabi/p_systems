@@ -7,4 +7,5 @@ module.exports = function(app) {
     app.get("/api/lot/client/confirmation/:id", controller.client_confirmation);
     app.get("/api/lot/checkout/:id",[ verifyUniqueId.checkConfirmation ],controller.checkout);
     app.get("/api/lot/checkout/confirmation/:id", controller.checkout_confirmation);
+    app.post("/api/lot/officer/confirmation", controller.officer_confirmation);
 };

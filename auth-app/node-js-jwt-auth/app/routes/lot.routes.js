@@ -10,4 +10,5 @@ module.exports = function(app) {
     app.post("/api/lot/edit", controller.edit);
     app.get("/api/lot/remove/:id", controller.remove);
     app.get("/api/lot/reports/:id", controller.reports);
+    app.get("/api/lot/officer/reports/:id", controller.officer_reports);
 };
